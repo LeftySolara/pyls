@@ -76,7 +76,7 @@ def get_file_info(entry):
     mode = stats.st_mode
     hardlinks = stats.st_nlink
     uid = stats.st_uid
-    gid= stats.st_gid
+    gid = stats.st_gid
 
     info = FileInfo(path, name, inode, size, mtime,
                     mode, hardlinks, uid, gid)
