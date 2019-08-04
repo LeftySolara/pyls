@@ -84,8 +84,12 @@ def main():
     multiple_dirs = len(args.files) > 1
 
     for file in args.files:
-        current_directory = pathlib.Path(file)
-        print_dir_contents(current_directory, args.all, multiple_dirs)
+        current_path = pathlib.Path(file)
+
+        if not current_path.is_dir():
+            print("\n{}".format(current_path))
+        else:
+            print_dir_contents(current_path, args.all, multiple_dirs)
 
 
 if __name__ == "__main__":
