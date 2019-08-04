@@ -57,7 +57,7 @@ def get_dir_entries(dirname, include_hidden):
         The name of the directory to search.
 
     include_hidden : Bool
-        Whether to include files with names that start with '.'
+        Whether to include files whose names start with '.'
 
     Returns
     -------
@@ -120,27 +120,44 @@ def get_file_info(entry):
     return info
 
 
+def print_dir_contents(dir_path, print_hidden, print_header):
+    """Display the contents of the given directory.
+
+    Parameters
+    ----------
+    dir_path : String
+        Path the to directory to print.
+
+    print_hidden : Bool
+        Whether to include files whose names start with '.'
+
+    print_header : Bool
+        Whether to print the directory path as a header.
+
+    """
+
+    files = get_dir_entries(dir_path, print_hidden)
+    max_filename_len = len(max([file.name for file in files], key=len))
+    padded_names = [file.name.ljust(max_filename_len) for file in files]
+
+    # row_count isn't needed for what we're doing here, but we have it because
+    # get_terminal_size() requires two things to assign its return values to.
+    column_count, row_count = shutil.get_terminal_size()
+
+    if print_header:
+        print(dir_path + ':')
+    print(textwrap.fill("\n".join(padded_names), column_count))
+
+
 def main():
     """Main entry point for the program."""
 
     args = process_args()
     multiple_dirs = len(args.files) > 1
-    files = []
 
     for file in args.files:
         try:
-            files = get_dir_entries(file, args.all)
-            max_filename_len = len(max([file.name for file in files], key=len))
-            padded_names = [file.name.ljust(max_filename_len) for file in files]
-            column_count, row_count = shutil.get_terminal_size()
-
-            if multiple_dirs:
-                if file == '.':
-                    print(os.getcwd() + ':')
-                else:
-                    print(file + ':')
-            print(textwrap.fill("\n".join(padded_names), column_count))
-
+            print_dir_contents(file, args.all, multiple_dirs)
             if multiple_dirs:
                 print()
 
