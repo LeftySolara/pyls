@@ -111,7 +111,10 @@ def main():
         column_count, row_count = shutil.get_terminal_size()
 
         if multiple_dirs:
-            print(file + ':')
+            if file == '.':
+                print(os.getcwd() + ':')
+            else:
+                print(file + ':')
         print(textwrap.fill("\n".join(padded_names), column_count))
 
         if multiple_dirs:
