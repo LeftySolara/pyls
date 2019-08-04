@@ -61,19 +61,17 @@ def get_dir_entries(dirname, include_hidden):
 
     Returns
     -------
-    file_names : List
-        List of file names found in the directory.
+    files : List
+        List of FileInfo objects with info about files in the given directory.
 
     """
 
-    file_names = []
+    files = []
     with os.scandir(dirname) as entries:
         for entry in entries:
-            if entry.name.startswith('.') and include_hidden is False:
-                continue
-            file_names.append(get_file_info(entry))
+            files.append(get_file_info(entry))
 
-    return file_names
+    return files
 
 
 def get_file_info(entry):
@@ -82,12 +80,12 @@ def get_file_info(entry):
     Parameters
     ----------
     entry : DirEntry
-            The directory entry to collect information for.
+        The directory entry to collect information for.
 
     Returns
     -------
     info : FileInfo
-           Named tuple containing file information.
+        Named tuple containing file information.
 
     Raises
     ------
