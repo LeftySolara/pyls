@@ -74,7 +74,7 @@ def get_file_info(entry):
         if entry.is_symlink(): # broken symlink
             stats = entry.stat(follow_symlinks=False)
         else:
-            raise FileNotFoundError
+            print("Error: {}. No such file or directory.".format(entry.name))
 
     path = entry.path
     name = entry.name
@@ -100,25 +100,29 @@ def main():
     files = []
 
     for file in args.files:
-        with os.scandir(file) as entries:
-            for entry in entries:
-                if entry.name.startswith('.') and args.all is False:
-                    continue
-                files.append(get_file_info(entry))
+        try:
+            with os.scandir(file) as entries:
+                for entry in entries:
+                    if entry.name.startswith('.') and args.all is False:
+                        continue
+                    files.append(get_file_info(entry))
 
-        max_filename_len = len(max([file.name for file in files], key=len))
-        padded_names = [file.name.ljust(max_filename_len) for file in files]
-        column_count, row_count = shutil.get_terminal_size()
+            max_filename_len = len(max([file.name for file in files], key=len))
+            padded_names = [file.name.ljust(max_filename_len) for file in files]
+            column_count, row_count = shutil.get_terminal_size()
 
-        if multiple_dirs:
-            if file == '.':
-                print(os.getcwd() + ':')
-            else:
-                print(file + ':')
-        print(textwrap.fill("\n".join(padded_names), column_count))
+            if multiple_dirs:
+                if file == '.':
+                    print(os.getcwd() + ':')
+                else:
+                    print(file + ':')
+            print(textwrap.fill("\n".join(padded_names), column_count))
 
-        if multiple_dirs:
-            print()
+            if multiple_dirs:
+                print()
+
+        except FileNotFoundError:
+            print("{}: No such file or directory.\n".format(file))
 
 
 if __name__ == "__main__":
