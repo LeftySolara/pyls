@@ -66,6 +66,7 @@ def print_dir_contents(dir_path, print_hidden, print_header):
     else:
         paths = [child for child in dir_path.iterdir()]
 
+    paths.sort(key=lambda path: path.name.lower().strip('.'))
     max_filename_len = len(max([path.name for path in paths], key=len))
     padded_names = [path.name.ljust(max_filename_len) for path in paths]
 
