@@ -48,6 +48,34 @@ def process_args():
     return namespace
 
 
+def get_dir_entries(dirname, include_hidden):
+    """Fetch a list of files/subdirectories in a directory.
+
+    Parameters
+    ----------
+    dirname : String
+        The name of the directory to search.
+
+    include_hidden : Bool
+        Whether to include files with names that start with '.'
+
+    Returns
+    -------
+    file_names : List
+        List of file names found in the directory.
+
+    """
+
+    file_names = []
+    with os.scandir(dirname) as entries:
+        for entry in entries:
+            if entry.name.startswith('.') and include_hidden is False:
+                continue
+            file_names.append(get_file_info(entry))
+
+    return file_names
+
+
 def get_file_info(entry):
     """Collect information for the given file.
 
@@ -101,12 +129,7 @@ def main():
 
     for file in args.files:
         try:
-            with os.scandir(file) as entries:
-                for entry in entries:
-                    if entry.name.startswith('.') and args.all is False:
-                        continue
-                    files.append(get_file_info(entry))
-
+            files = get_dir_entries(file, args.all)
             max_filename_len = len(max([file.name for file in files], key=len))
             padded_names = [file.name.ljust(max_filename_len) for file in files]
             column_count, row_count = shutil.get_terminal_size()
