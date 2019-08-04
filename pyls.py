@@ -14,7 +14,14 @@ FileInfo = namedtuple("FileInfo", ["path", "name", "inode", "size", "mtime",
                                    "mode", "hardlinks", "uid", "gid"])
 
 def process_args():
-    """Specify and parse command line arguments."""
+    """Specify and parse command line arguments.
+
+    Returns
+    -------
+    namespace : argparse.Namespace
+        Populated namespace containing argument attributes.
+
+    """
 
     parser = argparse.ArgumentParser(
         prog="pyls",
@@ -37,7 +44,8 @@ def process_args():
         metavar="FILE",
         help="a space-separated list of files to display")
 
-    return parser.parse_args()
+    namespace = parser.parse_args()
+    return namespace
 
 
 def get_file_info(entry):
@@ -94,6 +102,8 @@ def main():
     for file in args.files:
         with os.scandir(file) as entries:
             for entry in entries:
+                if entry.name.startswith('.') and args.all is False:
+                    continue
                 files.append(get_file_info(entry))
 
         max_filename_len = len(max([file.name for file in files], key=len))
