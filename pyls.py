@@ -14,6 +14,20 @@ import stat
 import textwrap
 from collections import namedtuple
 
+
+class Color:
+   PURPLE = '\033[95m'
+   CYAN = '\033[96m'
+   DARKCYAN = '\033[36m'
+   BLUE = '\033[94m'
+   GREEN = '\033[92m'
+   YELLOW = '\033[93m'
+   RED = '\033[91m'
+   BOLD = '\033[1m'
+   UNDERLINE = '\033[4m'
+   END = '\033[0m'
+
+
 FileInfo = namedtuple("FileInfo", ["filemode", "num_links", "uid", "gid",
                                     "owner", "group", "size", "timestamp", "name"])
 
@@ -87,7 +101,11 @@ def get_file_info(file_path):
     owner = pwd.getpwuid(uid)[0]
     group = grp.getgrgid(gid)[0]
 
-    name = file_path.name
+    if file_path.is_dir():
+        name = Color.BOLD + Color.BLUE + file_path.name + Color.END
+    else:
+        name = file_path.name
+
     if file_path.is_symlink():
         name = "{} -> {}".format(name, file_path.resolve())
 
