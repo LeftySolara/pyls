@@ -13,19 +13,23 @@ import shutil
 import stat
 import textwrap
 from collections import namedtuple
+from enum import Enum, unique
 
 
-class Color:
-   PURPLE = '\033[95m'
-   CYAN = '\033[96m'
-   DARKCYAN = '\033[36m'
-   BLUE = '\033[94m'
-   GREEN = '\033[92m'
-   YELLOW = '\033[93m'
-   RED = '\033[91m'
-   BOLD = '\033[1m'
-   UNDERLINE = '\033[4m'
-   END = '\033[0m'
+@unique
+class Color(Enum):
+    """Enumeration for colors and print formatting."""
+
+    PURPLE = '\033[95m'
+    CYAN = '\033[96m'
+    DARKCYAN = '\033[36m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    END = '\033[0m'
 
 
 FileInfo = namedtuple("FileInfo", ["filemode", "num_links", "uid", "gid",
@@ -102,7 +106,7 @@ def get_file_info(file_path):
     group = grp.getgrgid(gid)[0]
 
     if file_path.is_dir():
-        name = Color.BOLD + Color.BLUE + file_path.name + Color.END
+        name = Color.BOLD.value + Color.BLUE.value + file_path.name + Color.END.value
     else:
         name = file_path.name
 
