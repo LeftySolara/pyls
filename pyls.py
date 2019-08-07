@@ -16,22 +16,6 @@ from enum import Enum, unique, auto
 
 
 @unique
-class Color(Enum):
-    """Enumeration for colors and print formatting."""
-
-    PURPLE = '\033[95m'
-    CYAN = '\033[96m'
-    DARKCYAN = '\033[36m'
-    BLUE = '\033[94m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    RED = '\033[91m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-    END = '\033[0m'
-
-
-@unique
 class FileType(Enum):
     """Unix file types."""
 
@@ -57,6 +41,33 @@ class FileType(Enum):
         return cls.UNKNOWN
 
 
+@unique
+class Color(Enum):
+    """Enumeration for colors and print formatting."""
+
+    PURPLE = '\033[95m'
+    CYAN = '\033[96m'
+    DARKCYAN = '\033[36m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    END = '\033[0m'
+
+
+STYLES = {
+    FileType.DIR: [Color.BOLD.value, Color.BLUE.value],
+    FileType.REG: [],
+    FileType.LNK: [Color.BOLD.value, Color.CYAN.value],
+    FileType.SOCK: [Color.BOLD.value, Color.PURPLE.value],
+    FileType.FIFO: [Color.YELLOW.value],
+    FileType.BLK: [Color.BOLD.value, Color.YELLOW.value],
+    FileType.CHR: [Color.BOLD.value, Color.YELLOW.value]
+}
+
+
 class FileInfo:
     """An object in the filesystem."""
 
@@ -73,6 +84,8 @@ class FileInfo:
         self.path = pathlib.Path(path)
         self.name = self.path.name
         self.file_type = FileType.get_file_type(self.path)
+        self.style = STYLES[self.file_type]
+        self.styled_name = "".join(self.style) + self.name + Color.END.value
 
         self.filemode_str = None
         self.num_links = None
@@ -205,7 +218,7 @@ def process_args():
         help="use a long listing format")
 
     parser.add_argument(
-        "files",
+        "filenames",
         nargs='*',
         default='.',
         type=str,
@@ -220,39 +233,47 @@ def main():
     """Main entry point for the program."""
 
     args = process_args()
+
+    for filename in args.filenames:
+        current_file = FileInfo(filename)
+        children = current_file.get_children()
+        
+        for child in  children:
+            print(child.styled_name)
+
     # multiple_dirs = len(args.files) > 1
-    files = []
+    # files = []
 
-    for file in args.files:
-        files.append(FileInfo(file))
+    # for file in args.filenames:
+    #     files.append(FileInfo(file))
 
-    if args.long:
-        for file in files:
-            file.get_long_info()
+    # if args.long:
+    #     for file in files:
+    #         file.get_long_info()
 
-    max_links_width = len(max([str(file.num_links) for file in files], key=len))
-    max_owner_width = len(max([file.owner for file in files], key=len))
-    max_group_width = len(max([file.group for file in files], key=len))
-    max_size_width = len(max([str(file.size) for file in files], key=len))
+    # max_links_width = len(max([str(file.num_links) for file in files], key=len))
+    # max_owner_width = len(max([file.owner for file in files], key=len))
+    # max_group_width = len(max([file.group for file in files], key=len))
+    # max_size_width = len(max([str(file.size) for file in files], key=len))
 
-    column_count, row_count = shutil.get_terminal_size()
+    # column_count, row_count = shutil.get_terminal_size()
 
-    if args.long:
-        for file in files:
-            children = file.get_children(args.all)
-            children.sort(key=lambda child: child.name.lower().strip('.'))
+    # if args.long:
+    #     for file in files:
+    #         children = file.get_children(args.all)
+    #         children.sort(key=lambda child: child.name.lower().strip('.'))
 
-            for child in children:
-                out_str = child.get_long_str(max_links_width, max_owner_width,
-                                             max_group_width, max_size_width)
-                print(out_str)
-    else:
-        for file in files:
-            children = file.get_children(args.all)
-            children.sort(key=lambda child: child.name.lower().strip('.'))
-            max_filename_len = len(max([child.name for child in children], key=len))
-            padded_names = [child.name.ljust(max_filename_len) for child in children]
-            print(textwrap.fill("\n".join(padded_names), column_count))
+    #         for child in children:
+    #             out_str = child.get_long_str(max_links_width, max_owner_width,
+    #                                          max_group_width, max_size_width)
+    #             print(out_str)
+    # else:
+    #     for file in files:
+    #         children = file.get_children(args.all)
+    #         children.sort(key=lambda child: child.name.lower().strip('.'))
+    #         max_filename_len = len(max([child.name for child in children], key=len))
+    #         padded_names = [child.name.ljust(max_filename_len) for child in children]
+    #         print(textwrap.fill("\n".join(padded_names), column_count))
 
 
 if __name__ == "__main__":
