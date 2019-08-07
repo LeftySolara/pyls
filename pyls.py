@@ -106,33 +106,33 @@ class FileInfo:
         self.owner = pwd.getpwuid(self.uid)[0]
         self.group = grp.getgrgid(self.gid)[0]
 
-    def get_long_str(self, link_padding=0, owner_padding=0,
-                     group_padding=0, size_padding=0):
+    def get_long_str(self, link_width=0, owner_width=0,
+                     group_width=0, size_width=0):
         """Generate a string for printing in long format.
 
         Parameters
         ----------
-        link_padding : int
-            Amount of padding to insert around link count.
+        link_width : int
+            Maximum width of the string representing the number of hard links.
 
-        owner_padding: int
-            Amount of padding to insert around owner name.
+        owner_width : int
+            Maximum width of the owner name.
 
-        group_padding: int
-            Amount of padding to insert around group name.
+        group_width : int
+            Maximum width of the group name.
 
-        size_padding=: int
-            Amount of padding to insert around the file size.
+        size_width : int
+            Maximum width of the string representing the file size.
 
         """
 
         self.get_long_info()
 
         name = self.name
-        link_padded = str(self.num_links).rjust(link_padding)
-        owner_padded = self.owner.rjust(owner_padding)
-        group_padded = self.group.rjust(group_padding)
-        size_padded = str(self.size).rjust(size_padding)
+        link_padded = str(self.num_links).rjust(link_width)
+        owner_padded = self.owner.rjust(owner_width)
+        group_padded = self.group.rjust(group_width)
+        size_padded = str(self.size).rjust(size_width)
 
         if self.file_type is FileType.DIR:
             name = Color.BOLD.value + Color.BLUE.value + name + Color.END.value
@@ -159,12 +159,12 @@ class FileInfo:
         ----------
         include_hidden: Bool
             Whether to include files whose names start with '.'
-        
+
         Returns
         -------
         children : list
             List of FileInfo objects.
-            
+
         """
 
         if not include_hidden:
