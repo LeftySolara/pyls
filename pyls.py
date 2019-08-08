@@ -228,6 +228,32 @@ def process_args():
     namespace = parser.parse_args()
     return namespace
 
+def print_normal(file, include_hidden):
+    """If the given file is a directory, list its children.
+
+    Paramaters
+    ---------
+    file : FileInfo
+        The file to check. If it's a directory, print its children.
+        Otherwise, print its name.
+
+    include_hidden : Bool
+        Whether to include files whose names start with ','
+
+    """
+
+    if not file.path.is_dir():
+        print(file.styled_name)
+        return
+
+    children = file.get_children(include_hidden)
+    children.sort(key=lambda child: child.name.lower().strip('.'))
+    max_name_length = len(max([child.name for child in children], key=len))
+    names = [(child.name).ljust(max_name_length) for child in children]
+
+
+    column_count, row_count = shutil.get_terminal_size()
+    print(textwrap.fill("\n".join(names), column_count))
 
 def main():
     """Main entry point for the program."""
@@ -236,10 +262,7 @@ def main():
 
     for filename in args.filenames:
         current_file = FileInfo(filename)
-        children = current_file.get_children()
-        
-        for child in  children:
-            print(child.styled_name)
+        print_normal(current_file, args.all)
 
     # multiple_dirs = len(args.files) > 1
     # files = []
